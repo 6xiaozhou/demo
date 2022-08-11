@@ -1,0 +1,20 @@
+pragma solidity ^0.4.24;
+contract GroupSigPrecompiled {
+     function groupSigVerify(string signature, string message, string gpkInfo, string paramInfo) public constant returns(bool);
+}
+
+
+pragma solidity ^0.4.24;
+import "./GroupSigPrecompiled.sol";
+contract verifyGroupsig {
+    GroupSigPrecompiled groupSig;
+    function TestGroupSig()
+    {
+        // 实例化GroupSigPrecompiled合约
+        groupSig = GropuSigPrecompiled(0x5004);
+    }
+    function verify(string signature, string message, string gpkInfo, string paramInfo) public constant returns(bool)
+    {
+        return groupSig.groupSigVerify(signature, message, gpkInfo, paramInfo);
+    }
+}
