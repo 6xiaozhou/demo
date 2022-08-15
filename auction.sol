@@ -159,4 +159,11 @@ contract auction {
         for (i = 0; i < _bb.length; i++) bret[k++] = _bb[i];
         return string(ret);
    }
+   function isExit(bytes32 b) public returns(bool) {
+       return isAuctionExit[b];
+   }
+   function getTime() public returns(uint) {
+       uint t = now;
+       return t;
+   }
 }
