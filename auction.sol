@@ -82,8 +82,6 @@ contract auction {
         string memory pk = auc.groupPubKey;
         string memory pubparam = auc.pbc_param;
         if(groupSig.groupSigVerify(gs,message,pk,pubparam)){
-            return -1;
-        }
         bytes32 ID = keccak256(abi.encodePacked(auctionID,commit,time));
         bid memory b = bid(ID,auctionID, commit, time,gs);
         // b.bidID = ID;
@@ -93,7 +91,10 @@ contract auction {
         // b.groupSig = gs;
         bidList[ID] = b;
         isBidExit[ID] = true;
-        return ID;
+        return ID; 
+        }
+        return 0;
+        
     }
 
     function openBid(bytes32 bidID , string price, string random) public returns(bool){
