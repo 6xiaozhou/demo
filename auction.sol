@@ -44,84 +44,76 @@ contract auction {
     mapping(bytes32 => bool)  isBidExit;
     mapping(bytes32 => successBidder) auctionResult;
     GroupSigPrecompiled groupSig;
+    //初始化合约时同时实例化群签名验证合约
     function auction()
     {
         // 实例化GroupSigPrecompiled合约
         groupSig = GroupSigPrecompiled(0x5004);
     }
     function auctionPublish (uint sT,uint eT,string gpk,string pbc_param,string goodI)  public returns(bytes32){
-        uint t = now;
-        bytes32 ID =  keccak256(abi.encodePacked(sT,eT,gpk,goodI,t));
-        auctionInfo memory auctionIn = auctionInfo(ID, sT, eT, gpk,pbc_param,goodI,t, msg.sender);
-        // auctionIn.auctionID = ID;
-        // auctionIn.startTime = sT;
-        // auctionIn.endTime = eT;
-        // auctionIn.groupPubKey = gpk;
-        // auctionIn.timestamp = tS;
-        // auctionIn.auctioneerAddre = msg.sender;
-        auctionList[ID] = auctionIn;
+        //判断是否为拍卖人的地址
+        if(msg.sender != auctionerAddress){
+        //如果调用该方法的人不是拍卖人则方法执行失败
+            return -1;
+        }
+        uint t = now;//获取当前时间戳
+        bytes32 ID =  keccak256(abi.encodePacked(sT,eT,gpk,goodI,t));//对传入的拍卖信息进行哈希运算，生成拍卖的唯一标识
+        auctionInfo memory auctionIn = auctionInfo(ID, sT, eT, gpk,pbc_param,goodI,t, msg.sender);//生成一个新的结构体用于存放拍卖信息
+        auctionList[ID] = auctionIn;//将拍卖信息存入mapping集合中
         isAuctionExit[ID] = true;
-        return ID;
+        return ID;//返回拍卖标识
     }
     // function verify(string signature, string message, string gpkInfo, string paramInfo) public constant returns(bool)
     // {
     //     return groupSig.groupSigVerify(signature, message, gpkInfo, paramInfo);
     // }
+    //投标函数   传入拍卖标识，承诺值，群签名，返回投标标识
     function bidding (bytes32 auctionID, bytes32 commit, string gs) public returns(bytes32){
+        //  通过拍卖标识查询拍卖是否存在
         if(isAuctionExit[auctionID] == false){
             return -1;
         }
+        //获取拍卖信息
         auctionInfo memory auc  = auctionList[auctionID];
         uint time = now;
+        //判断投标时间是否在规定时间之内
         if(time <auc.startTime ||time >auc.endTime) {
             return -1;
         }
         string memory strauctionID = toHex(auctionID);//将拍卖标识转换为字符串
         string memory strcommit = toHex(commit);
         string memory message = strConcat(strauctionID,strcommit);//得到待签名信息
-        string memory pk = auc.groupPubKey;
+        string memory pk = auc.groupPubKey;//通过拍卖信息得到拍卖人发布的群公钥
         string memory pubparam = auc.pbc_param;
-        if(groupSig.groupSigVerify(gs,message,pk,pubparam)){
+        if(groupSig.groupSigVerify(gs,message,pk,pubparam)){//调用签名验证函数验证群签名是否合法
         bytes32 ID = keccak256(abi.encodePacked(auctionID,commit,time));
         bid memory b = bid(ID,auctionID, commit, time,gs);
-        // b.bidID = ID;
-        // b.C = commit;
-        // b.auctionID = auctionID;
-        // b.bidTime = time;
-        // b.groupSig = gs;
         bidList[ID] = b;
         isBidExit[ID] = true;
-        return ID; 
+        return ID; //返回投标标识
         }
         return 0;
-        
     }
-
+    //  传入参数：投标标识、价格、随机值
     function openBid(bytes32 bidID , string price, string random) public returns(bool){
-        bytes32 c = keccak256(abi.encodePacked(price,random));
-        bid memory b = bidList[bidID];
-        if ( isBidExit[bidID] == false || b.C != c) {
+        bytes32 c = keccak256(abi.encodePacked(price,random));//计算标价的承诺值c’
+        bid memory b = bidList[bidID];//通过投标标识找到相应的投标
+        if ( isBidExit[bidID] == false || b.C != c) {//首先判断投标是否存在，接着判断承诺值是否相等
             return false;
         }
         open memory o = open(bidID,price,random);
         opened[bidID] = o;
-        return true;
+        return true;//返回开标结果
     }
+    //传入中标价格，中标人地址，以及证明
     function auctionResultPublic(string price,string random ,bytes32 bID, address add,string prof) public returns(bool){//公布中标结果
         if(isBidExit[bID] == false){
             return false;
         }
-    //     struct successBidder {//中标
-    //     bytes32 bidID;
-    //     string price;
-    //     string random;
-    //     address bidder;
-    //     string proofOfId;
-    // }
         bid storage b = bidList[bID];
-        if(b.C == keccak256(abi.encodePacked(price,random))) {
+        if(b.C == keccak256(abi.encodePacked(price,random))) {//判断中标价格的真实性
             successBidder memory success = successBidder(bID,price,random,add,prof);
-            auctionResult[b.auctionID] = success;
+            auctionResult[b.auctionID] = success;//将中标结果存入mapping数组
             return  true;
         }
     }
