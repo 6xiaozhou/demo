@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拍卖信息的发布</title>
+    <style>
+        h1,
+        .address {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .method {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        tr {
+            margin-top: 20px;
+        }
+
+        .publish {
+            margin-top: 20px;
+        }
+
+        form {
+            text-align: center;
+        }
+
+        button {
+            margin-left: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>基于区块链的可信电子拍卖</h1>
+    <div class="address">当前账户地址</div>
+    <HR align=center width=100% color=black SIZE=1>
+    <p class="method">拍卖信息的发布</p>
+    <form action="#">
+        <tr>
+            <td>拍卖开始时间：</td>
+            <td>
+                <input type="text" id="start"><br />
+            </td>
+        </tr>
+        <tr>
+            <td>拍卖结束时间：</td>
+            <td>
+                <input type="text" id="end"><br />
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp群公钥：</td>
+            <td>
+                <input type="text" id="group"><br />
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp公共参数：</td>
+            <td>
+                <input type="text" id="public"><br />
+            </td>
+        </tr>
+        <tr>
+            <td>拍卖商品信息：</td>
+            <td>
+                <input type="text" id="goodInfo"><br />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button class="publish">发布拍卖信息</button>
+            </td>
+        </tr>
+    </form>
+    <div id="result">结果</div>
+    <script>
+        const btn = document.getElementsByTagName('button')[0];
+        const result = document.getElementById("result");
+        var start = document.getElementById("start").value;
+        var end= document.getElementById("end").value;
+        var group = document.getElementById("group").value;
+        var public = document.getElementById("public").value;
+        var goodInfo = document.getElementById("goodInfo").value;
+
+
+        btn.addEventListener('click',function() {
+            event.preventDefault();
+            // alert('123');
+            //1.创建对象
+            const xhr = new XMLHttpRequest();
+            //2.初始化，设置请求方法和URL
+            xhr.open('GET', 'http://gmall-h5-api.atguigu.cn/api/product/getBaseCategoryList?start&&end&&group&&public&&goodInfo');
+            //3.发送
+            xhr.send();
+            //4.事件绑定 处理服务端返回的结果
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        //返回结果
+                        result.innerHTML = xhr.response;
+                    }
+                }
+            }
+        }) 
+    </script>
+</body>
+
+</html>
