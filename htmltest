@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=-, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        table {
+            width: 300px;
+            text-align: center;
+        }
+    </style>
+
+    <table border="1" cellspacing="0">
+        <thead>
+            <tr>
+                <th>属性</th>
+                <th>属性值</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!--js渲染-->
+        </tbody>
+    </table>
+    <script>
+        //提前准备好的数据
+        var obj = {
+            "123": "[\"12344555\"]",
+            "456": "llllllllllllllllllllllll"
+        }
+        var prop = Object.keys(obj);
+        var propValue = Object.values(obj);
+        // console.log(prop);
+        // console.log(propValue);
+        //0.获取tbody标签
+        var tbody = document.querySelector('tbody')
+        //3.循环遍历item
+        while (prop.length != 0) {
+            //生成一行
+            var tr = document.createElement('tr')
+            //添加属性
+            var td1 = document.createElement('td')
+            td1.innerHTML = prop.shift();
+            //添加属性值
+            var td2 = document.createElement('td')
+            td2.innerHTML = propValue.shift();
+            tr.appendChild(td1)
+            tr.appendChild(td2)
+            tbody.appendChild(tr)
+        }
+    </script>
+
+</body>
+</html>
