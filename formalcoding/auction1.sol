@@ -67,32 +67,32 @@ contract auction {
     // {
     //     return groupSig.groupSigVerify(signature, message, gpkInfo, paramInfo);
     // }
+    //投标函数   传入拍卖标识，承诺值，群签名，返回投标标识
     function bidding (bytes32 auctionID, bytes32 commit, string gs) public returns(string ){
+    	//  通过拍卖标识查询拍卖是否存在
         if(isAuctionExit[auctionID] == false){
             return "auction not exit!";
         }
         auctionInfo memory auc  = auctionList[auctionID];
-        uint time = now;
+        uint time = now;//获取当前时间戳
+	//判断投标时间是否在规定时间之内
         if(time <auc.startTime ||time >auc.endTime) {
             return "time illegal!";
         }
-        string memory strauctionID = toHex(auctionID);//将拍卖标识转换为字符串
+	//将拍卖标识转换为字符串
+        string memory strauctionID = toHex(auctionID);
         string memory strcommit = toHex(commit);
-        string memory message = strConcat(strauctionID,strcommit);//得到待签名信息
+	//得到待签名信息
+        string memory message = strConcat(strauctionID,strcommit);
         string memory pk = auc.groupPubKey;
         string memory pubparam = auc.pbc_param;
+	//调用签名验证函数验证群签名是否合法
         if(groupSig.groupSigVerify(gs,message,pk,pubparam)){
 		bytes32 ID = keccak256(abi.encodePacked(auctionID,commit,time));
         	bid memory b = bid(ID,auctionID, commit, time,gs);
-        	// b.bidID = ID;
-        	// b.C = commit;
-        	// b.auctionID = auctionID;
-        	// b.bidTime = time;
-        	// b.groupSig = gs;
         	bidList[ID] = b;
         	isBidExit[ID] = true;
         	return toHex(ID);
-            
         }
         return "GroupSignature verify error!";
     }
