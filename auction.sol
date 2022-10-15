@@ -56,10 +56,14 @@ contract auction {
         //如果调用该方法的人不是拍卖人则方法执行失败
             return -1;
         }
-        uint t = now;//获取当前时间戳
-        bytes32 ID =  keccak256(abi.encodePacked(sT,eT,gpk,goodI,t));//对传入的拍卖信息进行哈希运算，生成拍卖的唯一标识
-        auctionInfo memory auctionIn = auctionInfo(ID, sT, eT, gpk,pbc_param,goodI,t, msg.sender);//生成一个新的结构体用于存放拍卖信息
-        auctionList[ID] = auctionIn;//将拍卖信息存入mapping集合中
+        //获取当前时间戳
+        uint t = now;
+        //对传入的拍卖信息进行哈希运算，生成拍卖的唯一标识
+        bytes32 ID =  keccak256(abi.encodePacked(sT,eT,gpk,goodI,t));
+        //生成一个新的结构体用于存放拍卖信息
+        auctionInfo memory auctionIn = auctionInfo(ID, sT, eT, gpk,pbc_param,goodI,t, msg.sender);
+        //将拍卖信息存入mapping集合中
+        auctionList[ID] = auctionIn;
         isAuctionExit[ID] = true;
         return ID;//返回拍卖标识
     }
@@ -80,12 +84,16 @@ contract auction {
         if(time <auc.startTime ||time >auc.endTime) {
             return -1;
         }
-        string memory strauctionID = toHex(auctionID);//将拍卖标识转换为字符串
+        //将拍卖标识转换为字符串
+        string memory strauctionID = toHex(auctionID);
         string memory strcommit = toHex(commit);
-        string memory message = strConcat(strauctionID,strcommit);//得到待签名信息
-        string memory pk = auc.groupPubKey;//通过拍卖信息得到拍卖人发布的群公钥
+        //得到待签名信息
+        string memory message = strConcat(strauctionID,strcommit);
+        //通过拍卖信息得到拍卖人发布的群公钥
+        string memory pk = auc.groupPubKey;
         string memory pubparam = auc.pbc_param;
-        if(groupSig.groupSigVerify(gs,message,pk,pubparam)){//调用签名验证函数验证群签名是否合法
+        //调用签名验证函数验证群签名是否合法
+        if(groupSig.groupSigVerify(gs,message,pk,pubparam)){
         bytes32 ID = keccak256(abi.encodePacked(auctionID,commit,time));
         bid memory b = bid(ID,auctionID, commit, time,gs);
         bidList[ID] = b;
