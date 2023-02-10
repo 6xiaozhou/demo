@@ -92,32 +92,26 @@ contract auction {
         }
         return "GroupSignature verify error!";
     }
-
+//开标
     function openBid(bytes32 bidID , string price, string random) public returns(bool){
-        bytes32 c = keccak256(abi.encodePacked(price,random));
+        bytes32 c = keccak256(abi.encodePacked(price,random));//计算出价承诺
         bid memory b = bidList[bidID];
-        if ( isBidExit[bidID] == false || b.C != c) {
+        if ( isBidExit[bidID] == false || b.C != c) {//验证是否诚实公开出价
             return false;
         }
         open memory o = open(bidID,price,random);
-        opened[bidID] = o;
+        opened[bidID] = o;//保存开标消息
         return true;
     }
+    //拍卖结果发布
     function auctionResultPublic(string price,string random ,bytes32 bID, address add,string prof) public returns(bool){//公布中标结果
-        if(isBidExit[bID] == false){
+        if(isBidExit[bID] == false){//判断投标是否存在
             return false;
         }
-    //     struct successBidder {//中标
-    //     bytes32 bidID;
-    //     string price;
-    //     string random;
-    //     address bidder;
-    //     string proofOfId;
-    // }
         bid storage b = bidList[bID];
-        if(b.C == keccak256(abi.encodePacked(price,random))) {
+        if(b.C == keccak256(abi.encodePacked(price,random))) {//判断中标价格的真实性
             successBidder memory success = successBidder(bID,price,random,add,prof);
-            auctionResult[b.auctionID] = success;
+            auctionResult[b.auctionID] = success;//将中标结果保存至合约中
             return  true;
         }
     }
