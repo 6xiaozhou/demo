@@ -49,19 +49,15 @@ contract auction {
         // 实例化GroupSigPrecompiled合约
         groupSig = GroupSigPrecompiled(0x5004);
     }
+    //拍卖消息发布函数
     function auctionPublish (uint sT,uint eT,string gpk,string pbc_param,string goodI)  public returns(string){
-        uint t = now;
-        bytes32 ID =  keccak256(abi.encodePacked(sT,eT,gpk,goodI,t));
+        uint t = now;//获取当前时间戳
+        bytes32 ID =  keccak256(abi.encodePacked(sT,eT,gpk,goodI,t));//使用哈希函数生成拍卖场次标识
+	//新建拍卖信息对象
         auctionInfo memory auctionIn = auctionInfo(ID, sT, eT, gpk,pbc_param,goodI,t, msg.sender);
-        // auctionIn.auctionID = ID;
-        // auctionIn.startTime = sT;
-        // auctionIn.endTime = eT;
-        // auctionIn.groupPubKey = gpk;
-        // auctionIn.timestamp = tS;
-        // auctionIn.auctioneerAddre = msg.sender;
-        auctionList[ID] = auctionIn;
+        auctionList[ID] = auctionIn;//讲对象保存于拍卖列表中
         isAuctionExit[ID] = true;
-        return toHex(ID);
+        return toHex(ID);//返回拍卖标识
     }
     // function verify(string signature, string message, string gpkInfo, string paramInfo) public constant returns(bool)
     // {
